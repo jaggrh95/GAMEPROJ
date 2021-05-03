@@ -8,4 +8,8 @@ public abstract class Projectile extends Entity {
     {
         locationY = locationY + value;
     }
+    public void changeX(int value)
+    {
+        locationX = locationX + value;
+    }
 }

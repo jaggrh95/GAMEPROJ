@@ -1,46 +1,63 @@
 package com.company;
-
 import com.company.entities.*;
 import com.company.factories.*;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.Timer;
+import java.util.ResourceBundle;
 import java.util.Vector;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Game implements ActionListener
 {
+    //Entity list
     private Vector<Entity> Entlist;
+
+    //Timing off the game
     public Timer timer;
+
+    //Factories
     private PlayerFactory PLF = new PlayerFactory();
     private EnemyFactory EF = new EnemyFactory();
     private PlayerProjectileFactory PPF = new PlayerProjectileFactory();
     private EnemyProjectileFactory EPF = new EnemyProjectileFactory();
 
-    public int enemyCount = 0;
-    public int enemycountstart = 0;
-
-
+    //control class
     public Controls CS = new Controls();
 
+    //keeps score
     public int score = 0;
 
+    //used in procjectilestates and interaction
     public boolean PProjectileExists = false;
     public boolean EProjectileExists = false;
+    private int enemytypecounter = 0;
+    private Boolean left = false;
 
+    //used for enemy movement
     private int counter = 0;
     private boolean enemyDirectionRight = true;
 
+
+    //Variables for enemies
+    public int enemyCount = 0;
+    private int enemycountstart = 0;
     private int highestEID = 0;
     private int lowestEID = 99999;
+
+    //used for player
     private Entity PLAYPROJHOLD;
     public int[] playerPos = new int[2];
+    private  boolean alive;
+    public int lives = 3;
+    private int deadcounter = 0;
 
+    //screen size and paused variable
     public boolean paused = true;
-
     private  int SCREEN_WIDTH,SCREEN_HEIGHT;
 
+    //Constructor
+    //will prepare inital variables depending on giving parameters
     public Game(int w,int h)
     {
         SCREEN_HEIGHT = h;
@@ -50,6 +67,9 @@ public class Game implements ActionListener
         Setup();
         timer.start();
     }
+
+    //Setup
+    //Sets up the enemies and player
     public void Setup()
     {
         Entity player = PLF.CreatePlayer(SCREEN_WIDTH,SCREEN_HEIGHT);
@@ -71,6 +91,29 @@ public class Game implements ActionListener
 
     }
 
+    //SpawnPlayer
+    //Used in initial setup and for respawning after death
+    void ReSpawnPlayer()
+    {
+
+        for(int i =0; i < Entlist.size();i++)
+        {
+            if(Entlist.get(i) instanceof PlayerCharacter)
+            {
+                Entlist.get(i).locationY = SCREEN_HEIGHT - 100;
+                Entlist.get(i).locationX = SCREEN_WIDTH/2;
+                ((PlayerCharacter) Entlist.get(i)).setAlive(true);
+            }
+        }
+
+        playerPos[0] = SCREEN_WIDTH/2;
+        playerPos[1] = SCREEN_HEIGHT-100;
+        alive = true;
+
+    }
+
+    //Collision
+    //checks for any collision between projectiles and other entities
     void Collision()
     {
         for (int i = 0;i < Entlist.size();i++)
@@ -79,7 +122,6 @@ public class Game implements ActionListener
             {
                 if(Entlist.get(i) instanceof EnemyCharacter && Entlist.get(j) instanceof PlayerProjectile &&Entlist.get(i).locationX >= Entlist.get(j).locationX-15 && Entlist.get(i).locationX <= Entlist.get(j).locationX+25 && Entlist.get(i).locationY >= Entlist.get(j).locationY-20 && Entlist.get(i).locationY <= Entlist.get(j).locationY+5 && i != j)
                 {
-                        System.out.println("I = " + i + " EN J = " + j);
                         if(((EnemyCharacter) Entlist.get(i)).EnemyID == highestEID || ((EnemyCharacter) Entlist.get(i)).EnemyID == lowestEID)
                         {
 
@@ -104,8 +146,6 @@ public class Game implements ActionListener
                     }
                     if(Entlist.get(i) instanceof PlayerCharacter && Entlist.get(j) instanceof EnemyProjectile&&Entlist.get(i).locationX >= Entlist.get(j).locationX-20 && Entlist.get(i).locationX <= Entlist.get(j).locationX+25 && Entlist.get(i).locationY >= Entlist.get(j).locationY-20 && Entlist.get(i).locationY <= Entlist.get(j).locationY+20 && i != j) {
                      {
-                         System.out.println("PLAYER HIT:I = " + i + " EN J = " + j +                          Entlist.size());
-
                          ((PlayerCharacter) Entlist.get(i)).kill();
                             Entlist.remove(j);
                             EProjectileExists = false;
@@ -118,24 +158,8 @@ public class Game implements ActionListener
 
     }
 
-    public int[] GetSpecifiedEnemyLocation(int eid)
-    {
-        int[] xy = new int[2];
-        for(int i = 0; i < Entlist.size();i++)
-        {
-            if(Entlist.get(i) instanceof EnemyCharacter)
-            {
-                if(((EnemyCharacter) Entlist.get(i)).EnemyID == eid)
-                {
-                    xy[0] = Entlist.get(i).locationX;
-                    xy[1] = Entlist.get(i).locationY;
-                    break;
-                }
-
-            }
-        }
-        return xy;
-    }
+    //InteractionProjectile method
+    //Handles speed of projectiles, visibility and movement depending on type of projectile
     void InteractionProjectile()
     {
         if(EProjectileExists)
@@ -144,7 +168,33 @@ public class Game implements ActionListener
             {
                 if(Entlist.get(i) instanceof EnemyProjectile)
                 {
-                    ((EnemyProjectile) Entlist.get(i)).changeY(8);
+                    if(((EnemyProjectile) Entlist.get(i)).getType() == 2)
+                    {
+                        enemytypecounter++;
+                        if(enemytypecounter == 10)
+                        {
+                            if(left)
+                            {
+                                ((EnemyProjectile) Entlist.get(i)).changeX(-20);
+                                left = !left;
+
+                            }
+                            else
+                            {
+
+                                ((EnemyProjectile) Entlist.get(i)).changeX(20);
+                                left = !left;
+                            }
+                            enemytypecounter = 0;
+
+                        }
+                        ((EnemyProjectile) Entlist.get(i)).changeY(((EnemyProjectile) Entlist.get(i)).getType() + 4 * 2);
+                    }
+                    else
+                    {
+                        ((EnemyProjectile) Entlist.get(i)).changeY(((EnemyProjectile) Entlist.get(i)).getType()+4 * 2);
+
+                    }
                     if(Entlist.get(i).locationY >= SCREEN_HEIGHT)
                     {
                         Entlist.remove(i);
@@ -159,7 +209,7 @@ public class Game implements ActionListener
             {
                 if(Entlist.get(i) instanceof PlayerProjectile)
                 {
-                    ((PlayerProjectile) Entlist.get(i)).changeY(-5);
+                    ((PlayerProjectile) Entlist.get(i)).changeY(-10);
                     if(Entlist.get(i).locationY <= 10)
                     {
                         Entlist.remove(i);
@@ -213,7 +263,6 @@ public class Game implements ActionListener
 
         if((!PProjectileExists && CS.isSpace()) && !paused)
         {
-            System.out.println("SPACE PRESSED");
             for(int i = 0; i < Entlist.size();i++)
             {
                 if(Entlist.get(i) instanceof PlayerCharacter)
@@ -228,6 +277,7 @@ public class Game implements ActionListener
         CS.setSpace(false);
 
     }
+
     //UpdateEnemies()
     //Updates enemies and enemy projectiles
     void UpdateEnemies()
@@ -241,6 +291,7 @@ public class Game implements ActionListener
         EnemyProjectileState();
 
     }
+
     //EnemeyprojectileState()
     //Checks wether or not an enemy bullet has been fired and more are allowed.
     void EnemyProjectileState()
@@ -253,7 +304,7 @@ public class Game implements ActionListener
                 if(Entlist.get(i) instanceof EnemyCharacter && ((EnemyCharacter) Entlist.get(i)).EnemyID == randomNum)
                 {
                     EProjectileExists = true;
-                    Entlist.add(EPF.CreateProjectile(Entlist.get(i).locationX-10,Entlist.get(i).locationY));
+                    Entlist.add(EPF.CreateProjectile(Entlist.get(i).locationX-10,Entlist.get(i).locationY,((EnemyCharacter) Entlist.get(i)).type));
                 }
             }
         }
@@ -319,17 +370,41 @@ public class Game implements ActionListener
         }
     }
 
-
     //actionPerformed
     //Updates on each clock cycle
     @Override
     public void actionPerformed(ActionEvent e)
     {
-        if(!paused)
+        for(int i = 0;i < Entlist.size();i++)
+        {
+            if(Entlist.get(i) instanceof PlayerCharacter)
+            {
+                alive = ((PlayerCharacter) Entlist.get(i)).isAlive();
+            }
+        }
+        if(!paused && alive)
         {
             UpdateEnemies();
             Collision();
             InteractionProjectile();
+
+        }
+        else if(!alive)
+        {
+            deadcounter++;
+            if(deadcounter >= 60 )
+            {
+                if(!(lives > 0))
+                {
+                    //OFFICIALLY DEAD, DO SOMETHING HERE?
+                }
+                else {
+                    lives -= 1;
+                    ReSpawnPlayer();
+                    deadcounter = 0;
+
+                }
+            }
         }
         else
         {
@@ -338,11 +413,9 @@ public class Game implements ActionListener
             CS.setRight(false);
 
         }
+
         State();
     }
-
-
-
 
     //Data functions
     //Used by visualisation to get necesarry Data out for visualisation
@@ -366,6 +439,11 @@ public class Game implements ActionListener
         return playerPos;
     }
 
+    public boolean playerAlive()
+    {
+        return alive;
+    }
+
     public int[] getPlayerProjectilePos()
     {
         int[] xy = new int[2];
@@ -382,13 +460,15 @@ public class Game implements ActionListener
     }
     public int[] getEnemyProjectilePos()
     {
-        int[] xy = new int[2];
+        int[] xy = new int[3];
         for(int i = 0; i < Entlist.size();i++)
         {
             if(Entlist.get(i) instanceof EnemyProjectile)
             {
                 xy[0] = Entlist.get(i).locationX;
                 xy[1] = Entlist.get(i).locationY;
+                xy[2] = ((EnemyProjectile) Entlist.get(i)).getType();
+
                 break;
             }
         }
@@ -405,6 +485,24 @@ public class Game implements ActionListener
             }
         }
         return EIDHolder;
+    }
+    public int[] GetSpecifiedEnemyLocation(int eid)
+    {
+        int[] xy = new int[2];
+        for(int i = 0; i < Entlist.size();i++)
+        {
+            if(Entlist.get(i) instanceof EnemyCharacter)
+            {
+                if(((EnemyCharacter) Entlist.get(i)).EnemyID == eid)
+                {
+                    xy[0] = Entlist.get(i).locationX;
+                    xy[1] = Entlist.get(i).locationY;
+                    break;
+                }
+
+            }
+        }
+        return xy;
     }
 }
 

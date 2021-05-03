@@ -2,7 +2,7 @@ package com.company.entities;
 
 public abstract class Character extends Entity
 {
-    boolean alive = true;
+    public boolean alive = true;
 
     public Character(int x, int y) {
         super(x, y);

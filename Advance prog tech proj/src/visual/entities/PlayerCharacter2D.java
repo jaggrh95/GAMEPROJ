@@ -7,8 +7,6 @@ public class PlayerCharacter2D {
     public void draw(int[] loc,Graphics g)
     {
         Graphics2D g2d = (Graphics2D) g;
-        g2d.setColor(new Color(0,0,0));
-        g2d.fillRect(0,0,1920,900);
         g2d.setColor(new Color(255,255,255));
 
         g2d.fillRect(loc[0],loc[1],5,5);

@@ -90,39 +90,87 @@ public class EnemyCharacter2D
             g2d.fillRect(loc[0]+5, loc[1]-20,5,5);
             g2d.fillRect(loc[0]-5, loc[1]-20,5,5);
         }
+        else if(type == 2)
+        {
+            g2d.setColor(new Color(255,255,255));
+
+
+            g2d.fillRect(loc[0],loc[1]+10,5,5);
+
+            g2d.fillRect(loc[0]+5,loc[1]+5,5,5);
+            g2d.fillRect(loc[0],loc[1]+5,5,5);
+            g2d.fillRect(loc[0]-5,loc[1]+5,5,5);
+
+            g2d.fillRect(loc[0]+5,loc[1],5,5);
+            g2d.fillRect(loc[0],loc[1],5,5);
+            g2d.fillRect(loc[0]-5,loc[1],5,5);
+            g2d.fillRect(loc[0]+10,loc[1],5,5);
+            g2d.fillRect(loc[0]-10,loc[1],5,5);
+
+            g2d.fillRect(loc[0]+5,loc[1]-5,5,5);
+            g2d.fillRect(loc[0],loc[1]-5,5,5);
+            g2d.fillRect(loc[0]-5,loc[1]-5,5,5);
+            g2d.fillRect(loc[0]+10,loc[1]-5,5,5);
+            g2d.fillRect(loc[0]-10,loc[1]-5,5,5);
+            g2d.fillRect(loc[0]+15,loc[1]-5,5,5);
+            g2d.fillRect(loc[0]-15,loc[1]-5,5,5);
+
+            g2d.fillRect(loc[0],loc[1]-10,5,5);
+            g2d.fillRect(loc[0]+10,loc[1]-10,5,5);
+            g2d.fillRect(loc[0]-10,loc[1]-10,5,5);
+
+            g2d.fillRect(loc[0]+5,loc[1]-15,5,5);
+            g2d.fillRect(loc[0],loc[1]-15,5,5);
+            g2d.fillRect(loc[0]-5,loc[1]-15,5,5);
+            g2d.fillRect(loc[0]+10,loc[1]-15,5,5);
+            g2d.fillRect(loc[0]-10,loc[1]-15,5,5);
+
+            g2d.fillRect(loc[0]+5,loc[1]-20,5,5);
+            g2d.fillRect(loc[0],loc[1]-20,5,5);
+            g2d.fillRect(loc[0]-5,loc[1]-20,5,5);
+
+
+            g2d.setColor(new Color(150,0,150));
+
+            g2d.fillRect(loc[0]+5,loc[1]-25,5,5);
+            g2d.fillRect(loc[0]-5,loc[1]-25,5,5);
+
+        }
         else
         {
-            g2d.setColor(new Color(0,120,255));
+            g2d.setColor(new Color(255,0,0));
 
-            g2d.fillRect(loc[0],loc[1]-15,5,5);
-            g2d.fillRect(loc[0]+5, loc[1]-15,5,5);
-            g2d.fillRect(loc[0]-5, loc[1]-15,5,5);
-            g2d.fillRect(loc[0],loc[1]-10,5,5);
-            for(int j=1;j <= 2; j++)
-            {
-                g2d.fillRect(loc[0]+j*5, loc[1]-10,5,5);
-                g2d.fillRect(loc[0]-j*5, loc[1]-10,5,5);
-            }
+            g2d.fillRect(loc[0]+5,loc[1]+5,5,5);
+            g2d.fillRect(loc[0]-5,loc[1]+5,5,5);
+            g2d.setColor(new Color(255,255,255));
 
-            g2d.fillRect(loc[0],loc[1]-5,5,5);
-
-            g2d.fillRect(loc[0]+10, loc[1]-5,5,5);
-            g2d.fillRect(loc[0]-10, loc[1]-5,5,5);
-
+            g2d.fillRect(loc[0],loc[1]+5,5,5);
+            g2d.fillRect(loc[0]+15,loc[1]+5,5,5);
+            g2d.fillRect(loc[0]-15,loc[1]+5,5,5);
+            g2d.fillRect(loc[0]+10,loc[1]+5,5,5);
+            g2d.fillRect(loc[0]-10,loc[1]+5,5,5);
 
             g2d.fillRect(loc[0],loc[1],5,5);
-            for(int j=1;j <= 2; j++)
-            {
-                g2d.fillRect(loc[0]+j*5, loc[1],5,5);
-                g2d.fillRect(loc[0]-j*5, loc[1],5,5);
-            }
-            g2d.fillRect(loc[0], loc[1]+5,5,5);
-            for(int j=1;j <= 3; j++)
-            {
-                g2d.fillRect(loc[0]+j*5, loc[1]+5,5,5);
-                g2d.fillRect(loc[0]-j*5, loc[1]+5,5,5);
+            g2d.fillRect(loc[0]+5,loc[1],5,5);
+            g2d.fillRect(loc[0]-5,loc[1],5,5);
+            g2d.fillRect(loc[0]+10,loc[1],5,5);
+            g2d.fillRect(loc[0]-10,loc[1],5,5);
 
-            }
+            g2d.fillRect(loc[0],loc[1]-5,5,5);
+            g2d.fillRect(loc[0]+5,loc[1]-5,5,5);
+            g2d.fillRect(loc[0]-5,loc[1]-5,5,5);
+            g2d.fillRect(loc[0]+10,loc[1]-5,5,5);
+            g2d.fillRect(loc[0]-10,loc[1]-5,5,5);
+
+            g2d.fillRect(loc[0],loc[1]-10,5,5);
+            g2d.fillRect(loc[0]+5,loc[1]-10,5,5);
+            g2d.fillRect(loc[0]-5,loc[1]-10,5,5);
+
+            g2d.fillRect(loc[0],loc[1]-15,5,5);
+            g2d.fillRect(loc[0]+5,loc[1]-15,5,5);
+            g2d.fillRect(loc[0]-5,loc[1]-15,5,5);
+
+            g2d.fillRect(loc[0],loc[1]-20,5,5);
         }
 
 

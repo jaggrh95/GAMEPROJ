@@ -41,8 +41,6 @@ public class Visualisation extends JPanel implements ActionListener
         timer = new Timer(2, this);
         timer.start();  // start timer (activates actionPerformed)
         addKeyListener(new TAdapter()); // activate key input
-
-
     }
 
     @Override
@@ -61,7 +59,14 @@ public class Visualisation extends JPanel implements ActionListener
 
         A = GAME.getPlayerpos();
         EIDHolder = GAME.GetAllEIDS();
-        P.draw(A,g2d);
+
+        g2d.setColor(new Color(0,0,0));
+        g2d.fillRect(0,0,1920,900);
+
+        if(GAME.playerAlive())
+        {
+            P.draw(A,g2d);
+        }
         for(int i = 0; i < GAME.enemyCount;i++)
         {
             E.add(E2DF.getEnemy(EIDHolder.get(i)));
@@ -77,12 +82,12 @@ public class Visualisation extends JPanel implements ActionListener
         }
         if(GAME.paused)
         {
-            statusbar.setText("PAUSED::::SCORE:" + GAME.score);
+            statusbar.setText("PAUSED::::SCORE:" + GAME.score +"          LIVES : " + GAME.lives );
 
         }
         else
         {
-            statusbar.setText("SCORE:" + GAME.score);
+            statusbar.setText("SCORE:" + GAME.score + "          LIVES : " + GAME.lives);
 
         }
 
@@ -91,6 +96,7 @@ public class Visualisation extends JPanel implements ActionListener
 
     }
 
+    //Used to give input to game
     class TAdapter extends KeyAdapter {
 
         @Override

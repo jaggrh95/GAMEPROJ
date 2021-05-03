@@ -5,8 +5,8 @@ import com.company.entities.Entity;
 import com.company.entities.PlayerProjectile;
 
 public class EnemyProjectileFactory extends ProjectileFactory{
-    public Entity CreateProjectile(int x, int y)
+    public Entity CreateProjectile(int x, int y, int t)
     {
-        return new EnemyProjectile(x,y);
+        return new EnemyProjectile(x,y,t);
     }
 }
