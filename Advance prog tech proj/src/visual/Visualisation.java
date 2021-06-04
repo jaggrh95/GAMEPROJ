@@ -25,14 +25,12 @@ public class Visualisation extends JPanel implements ActionListener
     Projectile2DFact PR2DF = new Projectile2DFact();
     EnemyProjectileFact2D EPR2DF = new EnemyProjectileFact2D();
     private JLabel statusbar;
-
     Vector<Integer> EIDHolder = new Vector<Integer>();
-
     Vector<EnemyCharacter2D> E = new Vector<EnemyCharacter2D>();
     Game GAME;
 
 
-
+    // setup
     public Visualisation(Game G,vis parent) {
         statusbar = parent.getStatusBar();
         statusbar.setText("Press CTRL to start");
@@ -43,12 +41,14 @@ public class Visualisation extends JPanel implements ActionListener
         addKeyListener(new TAdapter()); // activate key input
     }
 
+    //Timer triggers this to repaint everything/update game visualy
     @Override
     public void actionPerformed(ActionEvent e) {
 
         repaint();
     }
 
+    //repaint every single entity
     @Override
     public void paintComponent(Graphics g)
     {
@@ -60,18 +60,24 @@ public class Visualisation extends JPanel implements ActionListener
         A = GAME.getPlayerpos();
         EIDHolder = GAME.GetAllEIDS();
 
+        //Background to black
         g2d.setColor(new Color(0,0,0));
         g2d.fillRect(0,0,1920,900);
 
+        //Draw player
         if(GAME.playerAlive())
         {
             P.draw(A,g2d);
         }
+
+        //Draw Enemies
         for(int i = 0; i < GAME.enemyCount;i++)
         {
             E.add(E2DF.getEnemy(EIDHolder.get(i)));
             E.get(i).draw(GAME.GetSpecifiedEnemyLocation(EIDHolder.get(i)),g2d,GAME.getEnemyType(EIDHolder.get(i)));
         }
+
+        //Draw projectiles
         if(GAME.PProjectileExists)
         {
             PR2DF.CreateProj().draw(GAME.getPlayerProjectilePos(),g2d);
@@ -80,15 +86,15 @@ public class Visualisation extends JPanel implements ActionListener
         {
             EPR2DF.getEProjectile().draw(GAME.getEnemyProjectilePos(),g2d);
         }
+
+        //check if game is paused.
         if(GAME.paused)
         {
             statusbar.setText("PAUSED::::SCORE:" + GAME.score +"          LIVES : " + GAME.lives );
-
         }
         else
         {
             statusbar.setText("SCORE:" + GAME.score + "          LIVES : " + GAME.lives);
-
         }
 
         g2d.dispose();

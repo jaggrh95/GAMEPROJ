@@ -3,6 +3,9 @@ import com.company.entities.*;
 import com.company.factories.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.Timer;
 import java.util.ResourceBundle;
 import java.util.Vector;
@@ -16,13 +19,13 @@ public class Game implements ActionListener
     //Timing off the game
     public Timer timer;
 
-    //Factories
+    //Factories for each entity
     private PlayerFactory PLF = new PlayerFactory();
     private EnemyFactory EF = new EnemyFactory();
     private PlayerProjectileFactory PPF = new PlayerProjectileFactory();
     private EnemyProjectileFactory EPF = new EnemyProjectileFactory();
 
-    //control class
+    //controls , for user input
     public Controls CS = new Controls();
 
     //keeps score
@@ -56,10 +59,29 @@ public class Game implements ActionListener
     public boolean paused = true;
     private  int SCREEN_WIDTH,SCREEN_HEIGHT;
 
-    //Constructor
-    //will prepare inital variables depending on giving parameters
-    public Game(int w,int h)
+    //Config
+    private Config C;
+
+    //singleton
+    private static Game single_instance = null;
+
+    //getInstance
+    //used for singleton of game
+    public static Game getInstance(int w,int h)
     {
+        if (single_instance == null)
+            single_instance = new Game(w,h);
+
+        return single_instance;
+    }
+
+    //Constructor
+    //will prepare inital variables depending on giving parameter
+    private Game(int w,int h)
+    {
+        playSound("theme.wav");
+        C = Config.getInstance();
+        lives = C.Playerlives;
         SCREEN_HEIGHT = h;
         SCREEN_WIDTH = w;
         Entlist = new Vector<Entity>();
@@ -77,7 +99,7 @@ public class Game implements ActionListener
         playerPos[0] = player.locationX;
         playerPos[1] = player.locationY;
 
-        for(int i = 0; i < 12 ; i++)
+        for(int i = 0; i < C.EnemyColumns ; i++)
         {
             for(int j = 0; j < 4;j++)
             {
@@ -140,6 +162,7 @@ public class Game implements ActionListener
 
                             enemyCount--;
                         }
+                        playSound("EnemyHit.wav");
                         PProjectileExists = false;
                         score = score + 20;
                         break;
@@ -149,8 +172,10 @@ public class Game implements ActionListener
                          ((PlayerCharacter) Entlist.get(i)).kill();
                             Entlist.remove(j);
                             EProjectileExists = false;
+                         playSound("PlayerHit.wav");
 
-                        }
+
+                     }
                     }
                 }
             }
@@ -192,7 +217,7 @@ public class Game implements ActionListener
                     }
                     else
                     {
-                        ((EnemyProjectile) Entlist.get(i)).changeY(((EnemyProjectile) Entlist.get(i)).getType()+4 * 2);
+                        ((EnemyProjectile) Entlist.get(i)).changeY(((EnemyProjectile) Entlist.get(i)).getType()+ 4 * 2);
 
                     }
                     if(Entlist.get(i).locationY >= SCREEN_HEIGHT)
@@ -209,7 +234,7 @@ public class Game implements ActionListener
             {
                 if(Entlist.get(i) instanceof PlayerProjectile)
                 {
-                    ((PlayerProjectile) Entlist.get(i)).changeY(-10);
+                    ((PlayerProjectile) Entlist.get(i)).changeY(-C.CProjectileSpeed);
                     if(Entlist.get(i).locationY <= 10)
                     {
                         Entlist.remove(i);
@@ -241,7 +266,7 @@ public class Game implements ActionListener
                     {
                         if(Entlist.get(i).locationX < SCREEN_WIDTH + 60)
                         {
-                            Entlist.get(i).locationX += 10;
+                            Entlist.get(i).locationX += C.PlayerSpeed;
                         }
                         CS.setRight(false);
 
@@ -250,7 +275,7 @@ public class Game implements ActionListener
                     {
                         if(Entlist.get(i).locationX > 0)
                         {
-                            Entlist.get(i).locationX -= 10;
+                            Entlist.get(i).locationX -= C.PlayerSpeed;
                         }
                         CS.setLeft(false);
 
@@ -270,6 +295,7 @@ public class Game implements ActionListener
                     PProjectileExists = true;
                     PLAYPROJHOLD = PPF.CreateProjectile(Entlist.get(i).locationX,Entlist.get(i).locationY);
                     Entlist.add(PLAYPROJHOLD);
+                    playSound("ShootC.wav");
                 }
             }
 
@@ -283,7 +309,7 @@ public class Game implements ActionListener
     void UpdateEnemies()
     {
         counter++;
-        if(counter == 20)
+        if(counter == 100/C.EnemySpeed)
         {
             EnemyMoves();
             counter = 0;
@@ -292,23 +318,6 @@ public class Game implements ActionListener
 
     }
 
-    //EnemeyprojectileState()
-    //Checks wether or not an enemy bullet has been fired and more are allowed.
-    void EnemyProjectileState()
-    {
-        if(!EProjectileExists && !paused)
-        {
-            int randomNum = ThreadLocalRandom.current().nextInt(1, enemycountstart + 1);
-            for(int i = 0;i < Entlist.size();i++)
-            {
-                if(Entlist.get(i) instanceof EnemyCharacter && ((EnemyCharacter) Entlist.get(i)).EnemyID == randomNum)
-                {
-                    EProjectileExists = true;
-                    Entlist.add(EPF.CreateProjectile(Entlist.get(i).locationX-10,Entlist.get(i).locationY,((EnemyCharacter) Entlist.get(i)).type));
-                }
-            }
-        }
-    }
     //EnemyMoves
     //moves enemies left,right and down according to their current direction
     public void EnemyMoves()
@@ -327,25 +336,45 @@ public class Game implements ActionListener
                 }
             }
         }
-            for(int i = 0;i < Entlist.size();i++) {
-                if (Entlist.get(i) instanceof EnemyCharacter)
+        for(int i = 0;i < Entlist.size();i++) {
+            if (Entlist.get(i) instanceof EnemyCharacter)
+            {
+                if(godown)
                 {
-                    if(godown)
-                    {
-                        Entlist.get(i).locationY += 20;
-                    }
-                    else if (enemyDirectionRight)
-                    {
-                        Entlist.get(i).locationX += 50;
-                    }
-                    else
-                    {
-                        Entlist.get(i).locationX -= 50;
-                    }
-
+                    Entlist.get(i).locationY += 20;
+                }
+                else if (enemyDirectionRight)
+                {
+                    Entlist.get(i).locationX += 50;
+                }
+                else
+                {
+                    Entlist.get(i).locationX -= 50;
                 }
 
             }
+
+        }
+    }
+
+    //EnemeyprojectileState()
+    //Checks wether or not an enemy bullet has been fired and more are allowed.
+    void EnemyProjectileState()
+    {
+        if(!EProjectileExists && !paused)
+        {
+            int randomNum = ThreadLocalRandom.current().nextInt(1, enemycountstart + 1);
+            for(int i = 0;i < Entlist.size();i++)
+            {
+                if(Entlist.get(i) instanceof EnemyCharacter && ((EnemyCharacter) Entlist.get(i)).EnemyID == randomNum)
+                {
+                    EProjectileExists = true;
+                    Entlist.add(EPF.CreateProjectile(Entlist.get(i).locationX-10,Entlist.get(i).locationY,((EnemyCharacter) Entlist.get(i)).type));
+                    playSound("ShootE.wav");
+
+                }
+            }
+        }
     }
 
     //getNewEIDS()
@@ -417,6 +446,30 @@ public class Game implements ActionListener
         State();
     }
 
+
+    //Used for background music and other sound effects
+    public static synchronized void playSound(String url) {
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    Clip clip = AudioSystem.getClip();
+                    AudioInputStream inputStream = AudioSystem.getAudioInputStream(
+                            Main.class.getResourceAsStream("Audio/" + url));
+                    clip.open(inputStream);
+                    clip.start();
+                    if(url == "theme.wav")
+                    {
+                        clip.loop(10);
+                    }
+                } catch (Exception e) {
+                    System.err.println(e.getMessage());
+                }
+            }
+        }).start();
+    }
+
+
+
     //Data functions
     //Used by visualisation to get necesarry Data out for visualisation
     public int getEnemyType(int eid)
@@ -442,6 +495,10 @@ public class Game implements ActionListener
     public boolean playerAlive()
     {
         return alive;
+    }
+    public int getPlayerLives()
+    {
+        return  lives;
     }
 
     public int[] getPlayerProjectilePos()
